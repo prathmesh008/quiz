@@ -1,0 +1,79 @@
+import React, { useEffect } from 'react'
+import '../Styles/Result.css'
+import Resulttable from './Resulttable';
+import { attempts, earnpoints, flagresult } from '../Helper/Helper.js';
+import { Link } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux';
+import { resetallaction } from '../Redux/Questionreducer.js';
+import { resetresultaction } from '../Redux/Resultreducer.js';
+import { usepublishresult } from '../Hooks/setresult.js';
+function Result() {
+    const dispatch = useDispatch();
+    const { questions: { queue, answers }, result: { result, userid } } = useSelector(state => state);
+    useEffect(() => {
+        // Perform any side effects or data fetching here
+        console.log(flag)
+    }, []);
+    const totalpoints = queue.length * 10;
+    const attempt = attempts(result);
+    const earnpoint = earnpoints(result, answers, 10)
+    const flag = flagresult(totalpoints, earnpoint);
+
+    useEffect(() => {
+        usepublishresult({
+            result,
+            username: userid,
+            attempts: attempt,
+            points: earnpoint,
+            acheived: flag ? "Passed" : "Failed"
+        });
+    }, []);
+    function onrestart() {
+        console.log("Restart quiz");
+        dispatch(resetallaction());
+        dispatch(resetresultaction());
+    }
+    return (
+        <div className='container'>
+            <h1 className='title text-light'>Quiz Application</h1>
+
+            <div className='result flex-center'>
+                <div className='flex'>
+                    <span>Username</span>
+                    <span className='bold'>{userid || ""}</span>
+                </div>
+                <div className='flex'>
+                    <span>Total Quiz Points : </span>
+                    <span className='bold'>{totalpoints || 0}</span>
+                </div>
+                <div className='flex'>
+                    <span>Total Questions : </span>
+                    <span className='bold'>{queue.length || 0}</span>
+                </div>
+                <div className='flex'>
+                    <span>Total Attempts : </span>
+                    <span className='bold'>{attempt || 0}</span>
+                </div>
+                <div className='flex'>
+                    <span>Total Earn Points : </span>
+                    <span className='bold'>{earnpoint || 0}</span>
+                </div>
+                <div className='flex'>
+                    <span>Quiz Result</span>
+                    <span style={{ color: `${flag ? "#2aff95" : "#ff2a66"}` }} className='bold'>{flag ? "Passed" : "Failed"}</span>
+                </div>
+            </div>
+
+            <div className="start">
+                <Link className='btn' to={'/'} onClick={onrestart}>Restart</Link>
+            </div>
+
+            <div className="container">
+                {/* result table */}
+                <Resulttable></Resulttable>
+            </div>
+        </div>
+    )
+}
+
+export default Result

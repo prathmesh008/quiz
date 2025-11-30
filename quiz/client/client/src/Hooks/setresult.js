@@ -1,0 +1,42 @@
+import { postServerData } from '../Helper/Helper';
+import * as Action from '../Redux/Resultreducer';
+
+export const pushanswer=(result)=>async (dispatch)=>{
+    try{
+        await dispatch(Action.pushresultaction(result));
+    }catch(err){
+        console.log(err);
+    }
+}
+
+export const updateresult=(index)=>async (dispatch)=>{
+    try{
+        dispatch(Action.updateresultaction(index));
+    }catch(err){
+        console.log(err);
+    }
+}
+
+export const usepublishresult = (resultdata) => {
+    const { result, username } = resultdata;
+
+    (async () => {
+        try {
+            // FIX 1: correct empty check
+            const resultEmpty = !result || result.length === 0;
+
+            // FIX 2: correct condition
+            if (resultEmpty || !username) {
+                throw new Error("no result");
+            }
+
+            await postServerData(
+                `${process.env.REACT_APP_SERVER_HOSTNAME}/api/result`,
+                resultdata,
+                (data) => data
+            );
+        } catch (error) {
+            console.log(error);
+        }
+    })();
+};
